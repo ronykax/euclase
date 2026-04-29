@@ -19,36 +19,49 @@ struct ContentView: View {
             
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    RowItemView(selected: true)
-                    
-                    ForEach(0..<100, id: \.self) { _ in
-                        RowItemView(selected: false)
-                    }
+                    RowItemView(selected: true, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
+                    RowItemView(selected: false, title: "Buape", description: "~/Documents/Assets/buape")
                 }
                 .padding(.horizontal, 8)
                 .padding(.bottom, 8)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(.ultraThickMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
 struct RowItemView: View {
     let selected: Bool
+    let title: String
+    let description: String
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "circle")
-                .font(.title)
-                .foregroundStyle(.clear)
+//            Image(systemName: "circle")
+//                .font(.title)
+//                .foregroundStyle(.clear)
+//                .frame(width: 36, height: 36)
+//                .background(.red, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            Image(systemName: "folder.fill")
+                .font(.largeTitle)
                 .frame(width: 36, height: 36)
-                .background(.red, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .foregroundStyle(.red)
             VStack(alignment: .leading, spacing: 4) {
-                Text("Application")
+                Text(title)
                     .fontWeight(.medium)
                     .font(.title3)
-                Text("/Applications/Application.app")
+                Text(description)
                     .font(.caption)
                     .foregroundStyle(.secondary.opacity(0.75))
             }
