@@ -8,9 +8,12 @@ final class FloatingPanel: NSPanel {
 }
 
 final class PanelController {
+    private static let panelIdentifier = NSUserInterfaceItemIdentifier("EuclaseFloatingPanel")
+
     private let panel: FloatingPanel
     private let registry: ExtensionRegistry
     private let hotKeyMonitor = GlobalHotKeyMonitor()
+    private var notificationObservers: [NSObjectProtocol] = []
 
     init(registry: ExtensionRegistry) {
         self.registry = registry
@@ -25,17 +28,21 @@ final class PanelController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.isFloatingPanel = true
-        panel.level = .mainMenu
+        panel.level = .statusBar
         panel.animationBehavior = .none
         panel.hidesOnDeactivate = false
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        panel.collectionBehavior = [.fullScreenAuxiliary, .transient]
+        panel.identifier = Self.panelIdentifier
         panel.center()
 
         let hostingView = NSHostingView(rootView: ContentView().environmentObject(registry))
         panel.contentView = hostingView
+
+        installFocusObservers()
     }
 
     deinit {
+        removeFocusObservers()
         hotKeyMonitor.stop()
     }
 
@@ -59,10 +66,78 @@ final class PanelController {
     }
 
     private func showPanel() {
-        panel.orderFront(nil)
+        panel.orderFrontRegardless()
+        panel.makeKey()
+        restorePrimaryInputFocusIfNeeded()
     }
 
     private func hidePanel() {
         panel.orderOut(nil)
+    }
+
+    private func installFocusObservers() {
+        let notificationCenter = NotificationCenter.default
+        let workspaceCenter = NSWorkspace.shared.notificationCenter
+
+        let didBecomeKeyObserver = notificationCenter.addObserver(
+            forName: NSWindow.didBecomeKeyNotification,
+            object: panel,
+            queue: .main
+        ) { [weak self] _ in
+            self?.restorePrimaryInputFocusIfNeeded()
+        }
+
+        let activeSpaceObserver = workspaceCenter.addObserver(
+            forName: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, self.panel.isVisible else { return }
+            self.panel.orderFrontRegardless()
+            self.panel.makeKey()
+            self.restorePrimaryInputFocusIfNeeded()
+        }
+
+        notificationObservers.append(didBecomeKeyObserver)
+        notificationObservers.append(activeSpaceObserver)
+    }
+
+    private func removeFocusObservers() {
+        let notificationCenter = NotificationCenter.default
+        let workspaceCenter = NSWorkspace.shared.notificationCenter
+
+        for observer in notificationObservers {
+            notificationCenter.removeObserver(observer)
+            workspaceCenter.removeObserver(observer)
+        }
+        notificationObservers.removeAll()
+    }
+
+    private func restorePrimaryInputFocusIfNeeded() {
+        DispatchQueue.main.async { [weak self] in
+            self?.focusFirstTextInput()
+        }
+    }
+
+    private func focusFirstTextInput() {
+        guard let contentView = panel.contentView else { return }
+
+        if let textInputView = firstTextInput(in: contentView) {
+            panel.makeFirstResponder(textInputView)
+        }
+    }
+
+    private func firstTextInput(in view: NSView) -> NSView? {
+        if view is NSTextField {
+            return view
+        }
+
+        for subview in view.subviews {
+            if let match = firstTextInput(in: subview) {
+                return match
+            }
+        }
+
+        return nil
     }
 }

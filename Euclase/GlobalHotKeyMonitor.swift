@@ -2,16 +2,16 @@ import Carbon
 import Foundation
 
 final class GlobalHotKeyMonitor {
-    private static let hotKeySignature = OSType(0x4555434C) // "EUCL"
-    private static let hotKeyIdentifier: UInt32 = 1
+    // Carbon requires an ID when registering a hotkey even if we don't
+    // inspect the incoming EventHotKeyID in the handler.
+    private static let registrationHotKeyID = EventHotKeyID(
+        signature: OSType(0x4555434C), // "EUCL"
+        id: 1
+    )
 
     private var eventHandlerRef: EventHandlerRef?
     private var hotKeyRef: EventHotKeyRef?
     private var handler: (() -> Void)?
-    private let expectedHotKeyID = EventHotKeyID(
-        signature: hotKeySignature,
-        id: hotKeyIdentifier
-    )
 
     func start(keyCode: UInt32, modifiers: UInt32, handler: @escaping () -> Void) -> Bool {
         stop()
@@ -53,7 +53,7 @@ final class GlobalHotKeyMonitor {
         let registerStatus = RegisterEventHotKey(
             keyCode,
             modifiers,
-            expectedHotKeyID,
+            Self.registrationHotKeyID,
             GetEventDispatcherTarget(),
             0,
             &hotKeyRef
@@ -91,26 +91,7 @@ final class GlobalHotKeyMonitor {
         stop()
     }
 
-    private func handleHotKeyEvent(_ event: EventRef) {
-        var hotKeyID = EventHotKeyID()
-        let status = withUnsafeMutablePointer(to: &hotKeyID) { pointer in
-            GetEventParameter(
-                event,
-                EventParamName(kEventParamDirectObject),
-                EventParamType(typeEventHotKeyID),
-                nil,
-                MemoryLayout<EventHotKeyID>.size,
-                nil,
-                pointer
-            )
-        }
-
-        guard
-            status == noErr,
-            hotKeyID.signature == expectedHotKeyID.signature,
-            hotKeyID.id == expectedHotKeyID.id
-        else { return }
-
+    private func handleHotKeyEvent(_: EventRef) {
         if Thread.isMainThread {
             handler?()
         } else {
