@@ -2,7 +2,18 @@ import Foundation
 import JavaScriptCore
 
 enum JavaScriptCommandRunner {
+    private static let executionQueue = DispatchQueue(
+        label: "Euclase.JavaScriptCommandRunner",
+        qos: .userInitiated
+    )
+
     static func run(command: ExtensionCommand) {
+        executionQueue.async {
+            execute(command: command)
+        }
+    }
+
+    private static func execute(command: ExtensionCommand) {
         guard let context = JSContext() else { return }
 
         context.exceptionHandler = { _, exception in

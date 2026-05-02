@@ -1,0 +1,11 @@
+{
+  "name": "Example Extension",
+  "version": "1.0.0",
+  "description": "Sample extension for Euclase",
+  "commands": [
+    {
+      "id": "print-date-time",
+      "description": "Print the current date and time"
+    }
+  ]
+}

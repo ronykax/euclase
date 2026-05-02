@@ -1,0 +1,80 @@
+{
+  "source": "/Users/rony/Documents/Euclase/Euclase/SettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "hi world",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 6
+        }
+      },
+      {
+        "comment": "",
+        "key": "hmmm",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "General",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 7
+        }
+      },
+      {
+        "comment": "",
+        "key": "Extensions",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "About",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 13
+        }
+      },
+      {
+        "comment": "",
+        "key": "Extension",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Command",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Description",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 26
+        }
+      },
+      {
+        "comment": "",
+        "key": "Path",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 27
+        }
+      }
+    ]
+  },
+  "version": 1
+}

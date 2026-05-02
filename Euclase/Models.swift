@@ -1,5 +1,4 @@
 import Foundation
-import JavaScriptCore
 import Combine
 
 struct ExtensionManifest: Decodable {
@@ -8,6 +7,12 @@ struct ExtensionManifest: Decodable {
     let description: String?
     let author: String?
     let icon: String?
+    let commands: [ManifestCommand]
+}
+
+struct ManifestCommand: Decodable {
+    let id: String
+    let description: String
 }
 
 struct ExtensionCommand: Identifiable {
@@ -24,10 +29,6 @@ struct ExtensionRecord: Identifiable {
     let id: String
     let manifest: ExtensionManifest
     let commands: [ExtensionCommand]
-}
-
-struct CommandMetadata {
-    let description: String?
 }
 
 @MainActor
@@ -74,7 +75,11 @@ enum ExtensionLoader {
                 return nil
             }
 
-            let commands = loadCommands(from: commandsURL, extensionName: extensionName)
+            let commands = loadCommands(
+                from: commandsURL,
+                extensionName: extensionName,
+                manifestCommands: manifest.commands
+            )
             return ExtensionRecord(
                 id: extensionName,
                 manifest: manifest,
@@ -91,7 +96,11 @@ enum ExtensionLoader {
             .appendingPathComponent("extensions", isDirectory: true)
     }
 
-    private static func loadCommands(from commandsURL: URL, extensionName: String) -> [ExtensionCommand] {
+    private static func loadCommands(
+        from commandsURL: URL,
+        extensionName: String,
+        manifestCommands: [ManifestCommand]
+    ) -> [ExtensionCommand] {
         let fileManager = FileManager.default
         guard let fileURLs = try? fileManager.contentsOfDirectory(
             at: commandsURL,
@@ -101,43 +110,62 @@ enum ExtensionLoader {
             return []
         }
 
-        return fileURLs
-            .filter { $0.pathExtension == "js" }
+        var manifestByID: [String: ManifestCommand] = [:]
+        var duplicateManifestIDs = Set<String>()
+        for command in manifestCommands {
+            if manifestByID[command.id] != nil {
+                duplicateManifestIDs.insert(command.id)
+                continue
+            }
+            manifestByID[command.id] = command
+        }
+        for duplicateID in duplicateManifestIDs.sorted() {
+            print("Duplicate manifest command id '\(duplicateID)' in extension '\(extensionName)'.")
+        }
+
+        let scriptFiles = fileURLs
+            .filter { isJavaScriptCommandFile($0) }
             .sorted { $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending }
-            .map { fileURL in
-                let commandID = fileURL.deletingPathExtension().lastPathComponent
-                let source = (try? String(contentsOf: fileURL, encoding: .utf8)) ?? ""
-                let metadata = parseMetadata(from: source)
-                return ExtensionCommand(
+
+        var discoveredScriptIDs = Set<String>()
+        var commands: [ExtensionCommand] = []
+
+        for fileURL in scriptFiles {
+            let commandID = fileURL.deletingPathExtension().lastPathComponent
+            discoveredScriptIDs.insert(commandID)
+
+            guard let manifestCommand = manifestByID[commandID] else {
+                print("Skipping command \(extensionName).\(commandID): missing command metadata in manifest.json.")
+                continue
+            }
+
+            let description = manifestCommand.description.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !description.isEmpty else {
+                print("Skipping command \(extensionName).\(commandID): manifest command description is empty.")
+                continue
+            }
+
+            commands.append(
+                ExtensionCommand(
                     id: "\(extensionName).\(commandID)",
                     extensionName: extensionName,
                     commandID: commandID,
-                    description: metadata.description ?? "",
+                    description: description,
                     scriptURL: fileURL
                 )
-            }
+            )
+        }
+
+        let missingScriptIDs = Set(manifestByID.keys).subtracting(discoveredScriptIDs)
+        for missingID in missingScriptIDs.sorted() {
+            print("Manifest command \(extensionName).\(missingID) has no matching script in commands/.")
+        }
+
+        return commands
     }
 
-    private static func parseMetadata(from source: String) -> CommandMetadata {
-        let pattern = #"const\s+metadata\s*=\s*(\{[\s\S]*?\})\s*;?"#
-        guard
-            let regex = try? NSRegularExpression(pattern: pattern),
-            let match = regex.firstMatch(in: source, range: NSRange(source.startIndex..., in: source)),
-            let objectRange = Range(match.range(at: 1), in: source)
-        else {
-            return CommandMetadata(description: nil)
-        }
-
-        let objectLiteral = String(source[objectRange])
-        let context = JSContext()
-        let script = "(\(objectLiteral))"
-        guard let value = context?.evaluateScript(script) else {
-            return CommandMetadata(description: nil)
-        }
-
-        return CommandMetadata(
-            description: value.forProperty("description")?.toString()
-        )
+    private static func isJavaScriptCommandFile(_ url: URL) -> Bool {
+        url.pathExtension.lowercased() == "js"
     }
 
     private static func isDirectory(_ url: URL) -> Bool {
