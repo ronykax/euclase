@@ -7,6 +7,8 @@ struct ContentView: View {
     var body: some View {
         VStack {
             TextInputView()
+            
+            // here's where I want all the buttons for all the commands to be
             Button(buttonText1) {
                 CommandRunner.run(
                     file: "/Users/rony/.config/euclase/extensions/cowsay/index.ts"
@@ -38,15 +40,6 @@ struct ContentView: View {
                 CommandRunner.run(
                     file: "/Users/rony/.config/euclase/extensions/cowsay/index2.ts"
                 ) { message in
-                    // TEMP: Per-message print timing instrumentation.
-                    let startTime = DispatchTime.now().uptimeNanoseconds
-                    defer {
-                        let endTime = DispatchTime.now().uptimeNanoseconds
-                        let elapsedMs = Double(endTime - startTime) / 1_000_000
-                        buttonText2 = "took \(elapsedMs) ms"
-                        print("TEMP print timing: \(elapsedMs) ms")
-                    }
-
                     guard
                         let data = message.data(using: .utf8),
                         let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
