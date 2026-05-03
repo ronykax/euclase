@@ -21,7 +21,6 @@ struct TextInputView: View {
                 .textFieldStyle(.plain)
                 .font(.title3)
                 .onExitCommand {
-                    print("escape")
                     onEscape()
                 }
                 .onKeyPress(.upArrow) {
@@ -45,7 +44,6 @@ struct TextInputView: View {
                     onDelete()
                 }
                 .onSubmit {
-                    print("return")
                     onReturn()
                 }
         }

@@ -19,10 +19,12 @@ final class FloatingPanel: NSPanel {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    static weak var shared: AppDelegate?
     var panel: FloatingPanel!
     var hotKey: HotKey!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Self.shared = self
         panel = FloatingPanel(
             contentRect: NSRect(x: 0, y: 0, width: 600, height: 400),
             styleMask: [.nonactivatingPanel, .borderless],
@@ -46,10 +48,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func togglePanel() {
         if panel.isVisible {
-            panel.orderOut(nil)
+            hidePanel()
         } else {
-            panel.orderFrontRegardless()
-            panel.makeKey()
+            showPanel()
         }
+    }
+    
+    func hidePanel() {
+        panel.orderOut(nil)
+    }
+    
+    func showPanel() {
+        panel.orderFrontRegardless()
+        panel.makeKey()
     }
 }
