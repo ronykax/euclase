@@ -34,10 +34,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.hidesOnDeactivate = false
         panel.isFloatingPanel = true
+        panel.isMovableByWindowBackground = true
         panel.contentView = NSHostingView(rootView: ContentView())
         panel.center()
 
-        hotKey = HotKey(key: .space, modifiers: [.command, .option])
+        hotKey = HotKey(key: .space, modifiers: [.command])
         hotKey.keyDownHandler = { [weak self] in
             self?.togglePanel()
         }

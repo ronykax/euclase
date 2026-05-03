@@ -9,6 +9,7 @@ struct Extension {
 
 struct Command {
     let name: String
+    let description: String
 }
 
 final class ExtensionDiscoveryService {
@@ -34,7 +35,13 @@ final class ExtensionDiscoveryService {
 
             let metadata = extractExtensionMetadata(from: package)
             let extensionPath = buildExtensionPath(forExtensionID: metadata.id)
-            let commands = discoverCommands(in: directoryURL)
+            guard let commands = discoverCommands(
+                in: directoryURL,
+                commandDescriptionsByName: package.commands
+            ) else {
+                print("Skipping extension at \(directoryURL.path): invalid command descriptions map")
+                continue
+            }
 
             discoveredExtensions.append(
                 Extension(
@@ -83,12 +90,15 @@ final class ExtensionDiscoveryService {
         return (id: package.name, description: description)
     }
 
-    private func discoverCommands(in extensionDirectoryURL: URL) -> [Command] {
+    private func discoverCommands(
+        in extensionDirectoryURL: URL,
+        commandDescriptionsByName: [String: String]
+    ) -> [Command]? {
         let commandsDirectoryURL = extensionDirectoryURL.appendingPathComponent("commands", isDirectory: true)
 
         guard fileManager.fileExists(atPath: commandsDirectoryURL.path) else {
             print("Extension at \(extensionDirectoryURL.path) has no commands directory")
-            return []
+            return nil
         }
 
         guard let commandFileURLs = try? fileManager.contentsOfDirectory(
@@ -97,18 +107,47 @@ final class ExtensionDiscoveryService {
             options: [.skipsHiddenFiles]
         ) else {
             print("Could not read commands at \(commandsDirectoryURL.path)")
-            return []
+            return nil
         }
 
-        return commandFileURLs
+        let discoveredCommandNames = commandFileURLs
             .filter { $0.pathExtension == "ts" }
             .compactMap { commandFileURL in
-                guard let name = commandName(from: commandFileURL) else {
-                    return nil
-                }
-                return Command(name: name)
+                commandName(from: commandFileURL)
             }
-            .sorted { $0.name < $1.name }
+            .sorted()
+
+        let unknownCommands = Set(commandDescriptionsByName.keys).subtracting(Set(discoveredCommandNames))
+        guard unknownCommands.isEmpty else {
+            print(
+                """
+                Extension at \(extensionDirectoryURL.path) has descriptions for unknown commands: \
+                \(unknownCommands.sorted().joined(separator: ", "))
+                """
+            )
+            return nil
+        }
+
+        let commands = discoveredCommandNames.compactMap { commandName -> Command? in
+            guard let description = commandDescriptionsByName[commandName] else {
+                print("Extension at \(extensionDirectoryURL.path) is missing description for command '\(commandName)'")
+                return nil
+            }
+
+            let trimmedDescription = description.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedDescription.isEmpty else {
+                print("Extension at \(extensionDirectoryURL.path) has empty description for command '\(commandName)'")
+                return nil
+            }
+
+            return Command(name: commandName, description: trimmedDescription)
+        }
+
+        guard commands.count == discoveredCommandNames.count else {
+            return nil
+        }
+
+        return commands
     }
 
     private func commandName(from commandFileURL: URL) -> String? {
@@ -124,4 +163,5 @@ final class ExtensionDiscoveryService {
 private struct ExtensionPackageJSON: Decodable {
     let name: String
     let description: String?
+    let commands: [String: String]
 }
