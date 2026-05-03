@@ -31,7 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         panel.level = .statusBar
         panel.backgroundColor = .clear
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.hidesOnDeactivate = false
         panel.isFloatingPanel = true
         panel.isMovableByWindowBackground = true
@@ -49,6 +49,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             panel.orderOut(nil)
         } else {
             panel.orderFrontRegardless()
+            panel.makeKey()
         }
     }
 }
