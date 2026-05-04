@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var vc = ViewController()
+    @StateObject var vc = ViewController.shared
 
     var body: some View {
         Group {

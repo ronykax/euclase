@@ -37,6 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.hidesOnDeactivate = false
         panel.isFloatingPanel = true
         panel.isMovableByWindowBackground = true
+        panel.animationBehavior = .none
         panel.contentView = NSHostingView(rootView: ContentView())
         panel.center()
 

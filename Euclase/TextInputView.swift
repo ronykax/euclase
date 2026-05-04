@@ -39,9 +39,10 @@ struct TextInputView: View {
                     onRightArrow()
                     return .handled
                 }
-                .onDeleteCommand {
+                .onKeyPress(.delete) {
                     print("delete")
                     onDelete()
+                    return .handled
                 }
                 .onSubmit {
                     onReturn()

@@ -8,6 +8,8 @@ enum LauncherView {
 }
 
 class ViewController: ObservableObject {
+    static let shared = ViewController()
+
     @Published private(set) var current: LauncherView = .root
     private var stack: [LauncherView] = [.root]
 

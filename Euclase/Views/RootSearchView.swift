@@ -121,7 +121,6 @@ struct RootSearchView: View {
             return
         }
 
-        AppDelegate.shared?.hidePanel()
         run(item: selectedItem)
     }
 
@@ -189,6 +188,7 @@ struct RootSearchView: View {
     }
 
     private func openApp(path: String) {
+        AppDelegate.shared?.hidePanel()
         NSWorkspace.shared.open(URL(fileURLWithPath: path))
     }
 
@@ -197,18 +197,65 @@ struct RootSearchView: View {
     }
 
     private func handleMessage(_ message: String) {
+        // Commands can emit multiple JSON messages in a single stdout payload.
+        // Process each non-empty line independently.
+        let lines = message.split(whereSeparator: \.isNewline).map(String.init)
+        if lines.count > 1 {
+            for line in lines {
+                handleMessage(line)
+            }
+            return
+        }
+
         guard
             let data = message.data(using: .utf8),
             let payload = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-            let method = payload["method"] as? String,
-            method == "print",
-            let params = payload["params"]
+            let method = payload["method"] as? String
         else {
             print(message)
             return
         }
 
-        print(params)
+        switch method {
+        case "print":
+            guard let params = payload["params"] else {
+                print(message)
+                return
+            }
+            print(params)
+        case "show-list":
+            guard let params = payload["params"] else {
+                return
+            }
+            guard let items = parseListItems(from: params) else {
+                print(message)
+                return
+            }
+            ViewController.shared.showList(items: items)
+        case "hide":
+            AppDelegate.shared?.hidePanel()
+        default:
+            print(message)
+        }
+    }
+
+    private func parseListItems(from params: Any) -> [String]? {
+        if let items = params as? [String] {
+            return items
+        }
+
+        if let item = params as? String {
+            return [item]
+        }
+
+        if
+            let payload = params as? [String: Any],
+            let items = payload["items"] as? [String]
+        {
+            return items
+        }
+
+        return nil
     }
 }
 
