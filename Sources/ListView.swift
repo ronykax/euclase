@@ -41,7 +41,7 @@ struct ListView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                Text("item's description")
+                Text(item.subtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

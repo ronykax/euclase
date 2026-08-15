@@ -7,7 +7,8 @@ func builtInCommands() -> [Item] {
             title: "Quit Euclase",
             icon: NSImage(systemSymbolName: "power", accessibilityDescription: nil) ?? NSImage(),
             path: nil,
-            kind: .command
+            kind: .command,
+            description: "Quit the application"
         )
     ]
 }

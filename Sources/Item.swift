@@ -6,11 +6,21 @@ struct Item: Identifiable {
     var icon: NSImage
     var path: String?
     var kind: Kind
+    var description: String? = nil
 
     enum Kind {
         case app
         case file
         case command
+    }
+
+    var subtitle: String {
+        if let description { return description }
+        guard let path else { return "" }
+        return URL(fileURLWithPath: path)
+            .deletingLastPathComponent()
+            .path
+            .replacingOccurrences(of: NSHomeDirectory(), with: "~")
     }
 }
 
