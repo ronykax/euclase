@@ -22,8 +22,41 @@ struct LauncherView: View {
             )
         }
         .frame(width: 600, height: 400)
-        .background(.ultraThinMaterial)
+        .background(CustomBlur(material: .menu).overlay(.black.opacity(0.25)))
+        // cmd+k menu — grows in at the corner, clipped to the launcher
+        .overlay(alignment: .bottomTrailing) {
+            ActionMenu(model: model)
+                .padding(8)
+                .scaleEffect(model.actionMenuOpen ? 1 : 0.05, anchor: .bottomTrailing)
+                .opacity(model.actionMenuOpen ? 1 : 0)
+                .blur(radius: model.actionMenuOpen ? 0 : 8)
+                .allowsHitTesting(model.actionMenuOpen)
+        }
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .onExitCommand { model.hide() }
+        .onExitCommand {
+            if model.actionMenuOpen {
+                withAnimation(.easeOut(duration: 0.15)) {
+                    model.closeActionMenu()
+                }
+            } else {
+                model.hide()
+            }
+        }
+    }
+}
+
+struct CustomBlur: NSViewRepresentable {
+    var material: NSVisualEffectView.Material = .hudWindow
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        nsView.material = material
     }
 }

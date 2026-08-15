@@ -48,6 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSEvent.removeMonitor(clickMonitor)
             self.clickMonitor = nil
         }
+        model.closeActionMenu()
         panel.orderOut(nil)
     }
 
@@ -64,6 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.level = .floating
         panel.isFloatingPanel = true
         panel.hidesOnDeactivate = false
+        panel.animationBehavior = .none
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.contentView = NSHostingView(rootView: LauncherView(model: model))
     }

@@ -34,7 +34,18 @@ struct SearchBar: View {
             return .handled
         }
         .onKeyPress(.escape) {
-            model.hide()
+            if model.actionMenuOpen {
+                withAnimation(.easeOut(duration: 0.15)) {
+                    model.closeActionMenu()
+                }
+            } else {
+                model.hide()
+            }
+            return .handled
+        }
+        .onKeyPress(keys: ["k"]) { press in
+            guard press.modifiers.contains(.command) else { return .ignored }
+            model.toggleActionMenu()
             return .handled
         }
         .onKeyPress(.delete) {
@@ -48,6 +59,9 @@ struct SearchBar: View {
             guard press.modifiers.contains(.command) else { return .ignored }
             NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil)
             return .handled
+        }
+        .onChange(of: model.actionMenuOpen) {
+            if !model.actionMenuOpen { focused = true }
         }
         .task(id: model.showCount) {
             focused = true
