@@ -20,9 +20,7 @@ struct ListView: View {
             }
             .onChange(of: selectedIndex) {
                 guard items.indices.contains(selectedIndex) else { return }
-                withAnimation {
-                    proxy.scrollTo(items[selectedIndex].id)
-                }
+                proxy.scrollTo(items[selectedIndex].id)
             }
         }
         .frame(maxHeight: .infinity)
