@@ -21,7 +21,7 @@ struct LauncherView: View {
                 }
             )
         }
-        .frame(width: 600, height: 400)
+        .frame(width: .infinity, height: .infinity)
         .background(CustomBlur(material: .menu))
         // cmd+k menu — grows in at the corner, clipped to the launcher
         .overlay(alignment: .bottomTrailing) {
@@ -32,10 +32,10 @@ struct LauncherView: View {
                 .blur(radius: model.actionMenuOpen ? 0 : 8)
                 .allowsHitTesting(model.actionMenuOpen)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .onExitCommand {
             if model.actionMenuOpen {
-                withAnimation(.easeOut(duration: 0.15)) {
+                withAnimation(.easeOut(duration: 0.1)) {
                     model.closeActionMenu()
                 }
             } else {

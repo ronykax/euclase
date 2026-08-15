@@ -87,7 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func buildPanel() {
         panel = LauncherPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 400),
+            contentRect: NSRect(x: 0, y: 0, width: 620, height: 416),
             styleMask: [.nonactivatingPanel, .borderless],
             backing: .buffered,
             defer: false

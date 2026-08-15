@@ -11,8 +11,9 @@ struct SearchBar: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(.secondary)
-                .padding(12.5 * 32 / 128)
-                .frame(width: 32, height: 32)
+                .padding(12.5 * 40 / 128)
+                .frame(width: 36, height: 36)
+                .frame(width: 40, height: 40)
             TextField(
                 "Search for apps and commands...",
                 text: Binding(
@@ -21,7 +22,7 @@ struct SearchBar: View {
                 )
             )
             .textFieldStyle(.plain)
-            .font(.title2)
+            .font(.title)
             .focused($focused)
             .onKeyPress(.downArrow) {
                 model.moveSelection(1)
@@ -41,7 +42,7 @@ struct SearchBar: View {
             }
             .onKeyPress(.escape) {
                 if model.actionMenuOpen {
-                    withAnimation(.easeOut(duration: 0.15)) {
+                    withAnimation(.easeOut(duration: 0.1)) {
                         model.closeActionMenu()
                     }
                 } else {

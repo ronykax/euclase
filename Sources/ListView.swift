@@ -33,17 +33,23 @@ struct ListView: View {
         HStack(spacing: 12) {
             Image(nsImage: item.icon)
                 .resizable()
-                // 128pt app icons have 12.5pt inset; scale that to 32pt
-                .padding(item.kind == .command ? 12.5 * 32 / 128 : 0)
-                .frame(width: 32, height: 32)
-            Text(item.title)
-                .font(.body)
-                .foregroundStyle(.primary)
-                .lineLimit(1)
+                // 128pt app icons have 12.5pt inset; scale that to 40pt
+                .padding(item.kind == .command ? 12.5 * 40 / 128 : 0)
+                .frame(width: 40, height: 40)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.title)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                Text("item's description")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
             Spacer(minLength: 0)
         }
         .padding(8)
-        .background(selected ? .primary.opacity(0.1) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(selected ? .primary.opacity(0.1) : Color.clear, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }

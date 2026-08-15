@@ -125,7 +125,7 @@ final class Model {
     }
 
     func toggleActionMenu() {
-        withAnimation(.easeOut(duration: 0.15)) {
+        withAnimation(.easeOut(duration: 0.1)) {
             if actionMenuOpen {
                 closeActionMenu()
                 return
