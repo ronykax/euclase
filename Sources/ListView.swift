@@ -25,6 +25,7 @@ struct ListView: View {
         HStack(spacing: 8) {
             Image(nsImage: item.icon)
                 .resizable()
+                .padding(item.kind == .command ? 3 : 0)
                 .frame(width: 24, height: 24)
                 // .border(.red)
             Text(item.title)
