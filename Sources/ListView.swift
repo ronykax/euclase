@@ -7,13 +7,21 @@ struct ListView: View {
     var onRun: (Int) -> Void
 
     var body: some View {
-        // scrollview + vstack so we don't auto-scroll to the selection
-        ScrollView {
-            VStack(spacing: 0) {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                    row(item, selected: index == selectedIndex)
-                        .onTapGesture(count: 2) { onRun(index) }
-                        .onTapGesture { onSelect(index) }
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                        row(item, selected: index == selectedIndex)
+                            .id(item.id)
+                            .onTapGesture(count: 2) { onRun(index) }
+                            .onTapGesture { onSelect(index) }
+                    }
+                }
+            }
+            .onChange(of: selectedIndex) {
+                guard items.indices.contains(selectedIndex) else { return }
+                withAnimation {
+                    proxy.scrollTo(items[selectedIndex].id)
                 }
             }
         }
