@@ -17,7 +17,9 @@ struct ListView: View {
                             .onTapGesture { onSelect(index) }
                     }
                 }
+                .padding(.horizontal, 8)
             }
+            .contentMargins(.bottom, 8, for: .scrollContent)
             .onChange(of: selectedIndex) {
                 guard items.indices.contains(selectedIndex) else { return }
                 proxy.scrollTo(items[selectedIndex].id)
@@ -28,21 +30,20 @@ struct ListView: View {
     }
 
     func row(_ item: Item, selected: Bool) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 12) {
             Image(nsImage: item.icon)
                 .resizable()
-                .padding(item.kind == .command ? 3 : 0)
-                .frame(width: 24, height: 24)
-                // .border(.red)
+                // 128pt app icons have 12.5pt inset; scale that to 32pt
+                .padding(item.kind == .command ? 12.5 * 32 / 128 : 0)
+                .frame(width: 32, height: 32)
             Text(item.title)
                 .font(.body)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(selected ? Color.accentColor.opacity(0.3) : Color.clear)
-        .contentShape(Rectangle())
+        .padding(8)
+        .background(selected ? .primary.opacity(0.1) : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

@@ -6,6 +6,12 @@ import SwiftUI
 final class LauncherPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
+
+    override func fieldEditor(_ createFlag: Bool, for object: Any?) -> NSText? {
+        let editor = super.fieldEditor(createFlag, for: object)
+        (editor as? NSTextView)?.insertionPointColor = .labelColor
+        return editor
+    }
 }
 
 @MainActor
@@ -16,6 +22,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var panel: LauncherPanel!
     private var hotKeyRef: EventHotKeyRef?
     private var clickMonitor: Any?
+    private var cmdTabMonitor: Any?
+    private var appActivateObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         model.onHide = { [weak self] in
@@ -41,12 +49,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             self?.hide()
         }
+        // cmd+tab still reaches us because the panel is key
+        cmdTabMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if event.modifierFlags.contains(.command) && event.keyCode == UInt16(kVK_Tab) {
+                self?.hide()
+            }
+            return event
+        }
+        appActivateObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            if app?.processIdentifier != ProcessInfo.processInfo.processIdentifier {
+                self?.hide()
+            }
+        }
     }
 
     func hide() {
         if let clickMonitor {
             NSEvent.removeMonitor(clickMonitor)
             self.clickMonitor = nil
+        }
+        if let cmdTabMonitor {
+            NSEvent.removeMonitor(cmdTabMonitor)
+            self.cmdTabMonitor = nil
+        }
+        if let appActivateObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(appActivateObserver)
+            self.appActivateObserver = nil
         }
         model.closeActionMenu()
         panel.orderOut(nil)

@@ -22,7 +22,7 @@ struct LauncherView: View {
             )
         }
         .frame(width: 600, height: 400)
-        .background(CustomBlur(material: .menu).overlay(.black.opacity(0.25)))
+        .background(CustomBlur(material: .menu))
         // cmd+k menu — grows in at the corner, clipped to the launcher
         .overlay(alignment: .bottomTrailing) {
             ActionMenu(model: model)
