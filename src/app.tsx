@@ -15,22 +15,46 @@ export const App = () => {
     ];
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) {
+      const { repeat, key } = event;
+
+      if (repeat) {
         return;
       }
 
-      const chord = CHORDS[event.key];
+      if (
+        key === "1" ||
+        key === "2" ||
+        key === "3" ||
+        key === "4" ||
+        key === "5" ||
+        key === "6" ||
+        key === "7"
+      ) {
+        const chord = CHORDS[key];
 
-      for (const [index, note] of chord.entries()) {
-        voicesRef.current[index].triggerAttack(note);
+        for (const [index, note] of chord.entries()) {
+          voicesRef.current[index].triggerAttack(note);
+        }
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      const chord = CHORDS[event.key];
+      const { key } = event;
 
-      for (const [index, _] of chord.entries()) {
-        voicesRef.current[index].triggerRelease();
+      if (
+        key === "1" ||
+        key === "2" ||
+        key === "3" ||
+        key === "4" ||
+        key === "5" ||
+        key === "6" ||
+        key === "7"
+      ) {
+        const chord = CHORDS[key];
+
+        for (const [index, _] of chord.entries()) {
+          voicesRef.current[index].triggerRelease();
+        }
       }
     };
 
