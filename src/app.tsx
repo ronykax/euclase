@@ -11,7 +11,11 @@ export const App = () => {
   useEffect(() => {
     // 4 voices
     voicesRef.current = Array.from({ length: 4 }, () =>
-      new Synth({ oscillator: { type: "amsawtooth" } }).toDestination()
+      new Synth({
+        envelope: { attack: 0.035, sustain: 1 },
+        oscillator: { type: "sawtooth" },
+        volume: -16,
+      }).toDestination()
     );
 
     const handleKeyDown = (event: KeyboardEvent) => {
