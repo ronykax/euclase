@@ -1,12 +1,28 @@
 import { useEffect, useRef } from "react";
 import { Synth } from "tone";
 
-import { CHORDS } from "./lib/chords";
-import { numberKeys } from "./lib/keys";
+import {
+  CHORDS,
+  CHORDS_LEFT,
+  CHORDS_RIGHT,
+  CHORDS_TOP_RIGHT,
+} from "./lib/chords";
+import type { ChordSet } from "./lib/chords";
+import { arrowKeys, numberKeys } from "./lib/keys";
+
+type Direction = "left" | "right" | "topRight" | "yes";
+
+const JOYSTICK_MAPPING: Record<Direction, ChordSet> = {
+  left: CHORDS_LEFT,
+  right: CHORDS_RIGHT,
+  topRight: CHORDS_TOP_RIGHT,
+  yes: CHORDS,
+};
 
 export const App = () => {
   const voicesRef = useRef<Synth[]>([]);
   const activeNumberKeysRef = useRef<string[]>([]);
+  const chordsRef = useRef(CHORDS);
 
   useEffect(() => {
     // 4 voices
@@ -14,8 +30,8 @@ export const App = () => {
       new Synth({
         envelope: { release: 8, sustain: 1 },
         oscillator: { type: "sawtooth" },
-        portamento: 0.1,
-        volume: -16,
+        portamento: 0.025,
+        volume: -20,
       }).toDestination()
     );
 
@@ -30,7 +46,7 @@ export const App = () => {
 
         // push to list of active keys
         activeNumberKeysRef.current.push(event.key);
-        const chord = CHORDS[event.key];
+        const chord = chordsRef.current[event.key];
 
         // play chord
         for (const [index, note] of chord.entries()) {
@@ -41,6 +57,35 @@ export const App = () => {
             voice.triggerAttack(note);
           } else {
             voice.setNote(note);
+          }
+        }
+      }
+
+      if (arrowKeys.includes(event.key)) {
+        let direction: Direction = "yes";
+
+        if (event.key === "ArrowRight") {
+          direction = "right";
+        } else if (event.key === "ArrowLeft") {
+          direction = "left";
+        }
+
+        chordsRef.current = JOYSTICK_MAPPING[direction];
+
+        // if number keys are already held
+        if (activeNumberKeysRef.current.length !== 0) {
+          // oxlint-disable-next-line typescript/no-non-null-assertion
+          const lastActiveKey = activeNumberKeysRef.current.at(-1)!;
+          const chord = JOYSTICK_MAPPING[direction][lastActiveKey];
+
+          for (const [index, note] of chord.entries()) {
+            const voice = voicesRef.current[index];
+
+            if (index < 3) {
+              voice.setNote(note);
+            } else {
+              voice.triggerAttack(note);
+            }
           }
         }
       }
@@ -58,7 +103,7 @@ export const App = () => {
 
         // it might not exist if only one key was ever held
         if (lastActiveKey) {
-          const chord = CHORDS[lastActiveKey];
+          const chord = chordsRef.current[lastActiveKey];
 
           for (const [index, note] of chord.entries()) {
             voicesRef.current[index].setNote(note);
@@ -68,6 +113,22 @@ export const App = () => {
           for (const voice of voicesRef.current) {
             voice.triggerRelease();
           }
+        }
+      }
+
+      if (arrowKeys.includes(event.key)) {
+        chordsRef.current = CHORDS;
+
+        if (activeNumberKeysRef.current.length > 0) {
+          // oxlint-disable-next-line typescript/no-non-null-assertion
+          const lastActiveKey = activeNumberKeysRef.current.at(-1)!;
+          const chord = CHORDS[lastActiveKey];
+
+          for (const [index, note] of chord.entries()) {
+            voicesRef.current[index].setNote(note);
+          }
+
+          voicesRef.current[3].triggerRelease();
         }
       }
     };
@@ -86,7 +147,7 @@ export const App = () => {
   }, []);
 
   return (
-    <div className="flex h-dvh items-center justify-center text-4xl font-semibold sm:text-6xl md:text-8xl">
+    <div className="flex h-dvh items-center justify-center text-4xl font-semibold select-none sm:text-6xl md:text-8xl">
       euclase
     </div>
   );

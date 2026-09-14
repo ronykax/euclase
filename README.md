@@ -5,4 +5,4 @@
 ## todo
 
 - [ ] looper
-- [ ] joystick
+- [x] joystick

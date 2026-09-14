@@ -1,6 +1,6 @@
 import type { numberKeys } from "./keys";
 
-type ChordSet = Record<(typeof numberKeys)[number], string[]>;
+export type ChordSet = Record<(typeof numberKeys)[number], string[]>;
 
 // key of C (2 octaves: 3 & 4)
 export const CHORDS: ChordSet = {
@@ -21,6 +21,16 @@ export const CHORDS_RIGHT: ChordSet = {
   "5": ["G3", "B3", "D4", "F4"],
   "6": ["A3", "C4", "E4", "G4"],
   "7": ["B3", "D4", "F4", "A4"],
+};
+
+export const CHORDS_LEFT: ChordSet = {
+  "1": ["C3", "C#3", "F#3"],
+  "2": ["D3", "F3", "G#3"],
+  "3": ["E3", "G3", "A#3"],
+  "4": ["F3", "G#3", "B3"],
+  "5": ["G3", "A#3", "C#4"],
+  "6": ["A3", "C4", "D#4"],
+  "7": ["B3", "D4", "F4"],
 };
 
 export const CHORDS_TOP_RIGHT: ChordSet = {
