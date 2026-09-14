@@ -12,8 +12,9 @@ export const App = () => {
     // 4 voices
     voicesRef.current = Array.from({ length: 4 }, () =>
       new Synth({
-        envelope: { attack: 0.035, sustain: 1 },
+        envelope: { release: 8, sustain: 1 },
         oscillator: { type: "sawtooth" },
+        portamento: 0.1,
         volume: -16,
       }).toDestination()
     );
@@ -47,24 +48,23 @@ export const App = () => {
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (numberKeys.includes(event.key)) {
-        // remove from list of active keys
+        // remove from the list of active keys
         activeNumberKeysRef.current = activeNumberKeysRef.current.filter(
           (k) => k !== event.key
         );
 
-        // get last held key
-        const activeKey = activeNumberKeysRef.current.at(-1);
+        // get the last active key
+        const lastActiveKey = activeNumberKeysRef.current.at(-1);
 
         // it might not exist if only one key was ever held
-        if (activeKey) {
-          const chord = CHORDS[activeKey];
+        if (lastActiveKey) {
+          const chord = CHORDS[lastActiveKey];
 
-          // transfer voices to active key instead of deciding to simply not exist which is not going to sound smooth
           for (const [index, note] of chord.entries()) {
             voicesRef.current[index].setNote(note);
           }
         } else {
-          // release
+          // use the voices to play each note in the chord
           for (const voice of voicesRef.current) {
             voice.triggerRelease();
           }
@@ -85,5 +85,9 @@ export const App = () => {
     };
   }, []);
 
-  return <div className="flex h-dvh items-center justify-center">hello</div>;
+  return (
+    <div className="flex h-dvh items-center justify-center text-4xl font-semibold sm:text-6xl md:text-8xl">
+      euclase
+    </div>
+  );
 };
