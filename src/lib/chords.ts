@@ -1,7 +1,9 @@
-export type ChordSet = Record<string, string[]>;
+import type { numberKeys } from "./keys";
+
+type ChordSet = Record<(typeof numberKeys)[number], string[]>;
 
 // key of C (2 octaves: 3 & 4)
-export const CHORDS = {
+export const CHORDS: ChordSet = {
   "1": ["C3", "E3", "G3"],
   "2": ["D3", "F3", "A3"],
   "3": ["E3", "G3", "B3"],
@@ -9,9 +11,9 @@ export const CHORDS = {
   "5": ["G3", "B3", "D4"],
   "6": ["A3", "C4", "E4"],
   "7": ["B3", "D4", "F4"],
-} satisfies ChordSet;
+};
 
-export const CHORDS_RIGHT = {
+export const CHORDS_RIGHT: ChordSet = {
   "1": ["C3", "E3", "G3", "B3"],
   "2": ["D3", "F3", "A3", "C4"],
   "3": ["E3", "G3", "B3", "D4"],
@@ -19,9 +21,9 @@ export const CHORDS_RIGHT = {
   "5": ["G3", "B3", "D4", "F4"],
   "6": ["A3", "C4", "E4", "G4"],
   "7": ["B3", "D4", "F4", "A4"],
-} satisfies ChordSet;
+};
 
-export const CHORDS_TOP_RIGHT = {
+export const CHORDS_TOP_RIGHT: ChordSet = {
   "1": ["C3", "E3", "G3", "A#3"],
   "2": ["D3", "F#3", "A3", "C4"],
   "3": ["E3", "G#3", "B3", "D4"],
@@ -29,4 +31,34 @@ export const CHORDS_TOP_RIGHT = {
   "5": ["G3", "B3", "D4", "F4"],
   "6": ["A3", "C#4", "E4", "G4"],
   "7": ["B3", "D#4", "F#4", "A4"],
-} satisfies ChordSet;
+};
+
+// export const CHORDS: ChordSet = {
+//   "1": ["C2", "E2", "G2"],
+//   "2": ["D2", "F2", "A2"],
+//   "3": ["E2", "G2", "B2"],
+//   "4": ["F2", "A2", "C3"],
+//   "5": ["G2", "B2", "D3"],
+//   "6": ["A2", "C3", "E3"],
+//   "7": ["B2", "D3", "F3"],
+// };
+
+// export const CHORDS_RIGHT: ChordSet = {
+//   "1": ["C2", "E2", "G2", "B2"],
+//   "2": ["D2", "F2", "A2", "C3"],
+//   "3": ["E2", "G2", "B2", "D3"],
+//   "4": ["F2", "A2", "C3", "E3"],
+//   "5": ["G2", "B2", "D3", "F3"],
+//   "6": ["A2", "C3", "E3", "G3"],
+//   "7": ["B2", "D3", "F3", "A3"],
+// };
+
+// export const CHORDS_TOP_RIGHT: ChordSet = {
+//   "1": ["C2", "E2", "G2", "A#2"],
+//   "2": ["D2", "F#2", "A2", "C3"],
+//   "3": ["E2", "G#2", "B2", "D3"],
+//   "4": ["F2", "A2", "C3", "D#3"],
+//   "5": ["G2", "B2", "D3", "F3"],
+//   "6": ["A2", "C#3", "E3", "G3"],
+//   "7": ["B2", "D#3", "F#3", "A3"],
+// };
