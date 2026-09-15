@@ -28,10 +28,8 @@ export const App = () => {
     // 4 voices
     voicesRef.current = Array.from({ length: 4 }, () =>
       new Synth({
-        envelope: { release: 8, sustain: 1 },
         oscillator: { type: "sawtooth" },
-        portamento: 0.025,
-        volume: -20,
+        volume: -16,
       }).toDestination()
     );
 
